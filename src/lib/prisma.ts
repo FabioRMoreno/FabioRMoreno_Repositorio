@@ -1,17 +1,14 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
+import { createDbAdapter } from "@/lib/db-adapter";
 
-// Evita recriar o client (e reabrir o arquivo do banco) a cada hot-reload em dev.
+// Evita recriar o client (e reabrir a conexão) a cada hot-reload em dev.
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? "file:./dev.db",
-});
-
 export const prisma =
-  globalForPrisma.prisma ?? new PrismaClient({ adapter });
+  globalForPrisma.prisma ??
+  new PrismaClient({ adapter: createDbAdapter() });
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

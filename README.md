@@ -11,7 +11,7 @@ documento fornecido no início do projeto.
 ## Stack
 
 - **Next.js 16** (App Router) — frontend + backend (API/Server Actions) no mesmo projeto
-- **Prisma 7** + **SQLite** (via driver adapter `@prisma/adapter-better-sqlite3`) — banco em arquivo único, fácil de fazer backup
+- **Prisma 7** + **SQLite** — arquivo local (`@prisma/adapter-better-sqlite3`) em dev, [Turso](https://turso.tech) (`@prisma/adapter-libsql`) em produção — ver [`src/lib/db-adapter.ts`](./src/lib/db-adapter.ts)
 - **bcryptjs** — hash da senha da professora (nunca fica em texto puro)
 - **Tailwind CSS** — estilização
 
@@ -77,6 +77,60 @@ npm run dev
 
 Acesse [http://localhost:3000](http://localhost:3000).
 
+## Deploy (Vercel + Turso)
+
+O filesystem da Vercel é efêmero — o arquivo `dev.db` local não sobrevive
+entre deploys/execuções. Por isso, em produção o projeto usa o
+[Turso](https://turso.tech) (SQLite hospedado, com backup). A troca é
+automática: `src/lib/db-adapter.ts` usa Turso se `TURSO_DATABASE_URL`
+estiver definido, senão cai para o SQLite local — o resto do código
+(queries Prisma) não muda.
+
+### 1. Criar o banco no Turso
+
+```bash
+curl -sSfL https://get.tur.so/install.sh | bash   # instala o CLI do Turso
+turso auth signup                                  # ou: turso auth login
+turso db create sistema-ava
+
+turso db show sistema-ava --url        # -> TURSO_DATABASE_URL
+turso db tokens create sistema-ava     # -> TURSO_AUTH_TOKEN
+```
+
+### 2. Aplicar o schema no Turso
+
+O `prisma migrate deploy` não fala o protocolo do Turso diretamente — a
+forma simples é rodar o SQL da migration direto pelo CLI do Turso:
+
+```bash
+turso db shell sistema-ava < prisma/migrations/20260808203336_init/migration.sql
+```
+
+(se no futuro houver mais migrations, rode cada `migration.sql` na ordem)
+
+### 3. Rodar o seed contra o Turso
+
+Defina `TURSO_DATABASE_URL` e `TURSO_AUTH_TOKEN` temporariamente no seu
+`.env` local (ou exporte na sessão do terminal) e rode:
+
+```bash
+npm run db:seed
+```
+
+### 4. Deploy na Vercel
+
+1. Em [vercel.com](https://vercel.com), "Add New… → Project" e importe o
+   repositório `FabioRMoreno/FabioRMoreno_Repositorio` (branch com o código
+   mais recente). A Vercel detecta o Next.js automaticamente.
+2. Em "Environment Variables", adicione:
+   - `TURSO_DATABASE_URL`
+   - `TURSO_AUTH_TOKEN`
+   - `SESSION_SECRET`
+   - `PROFESSORA_PASSWORD_HASH` — **cole o hash puro, sem escapar os `$`**.
+     A regra de escapar `\$` vale só para arquivos `.env` lidos em disco; o
+     painel da Vercel injeta a variável diretamente, sem essa expansão.
+3. Deploy. A Vercel te dá uma URL pública (ex: `sistema-ava.vercel.app`).
+
 ## Scripts úteis
 
 - `npm run dev` — servidor de desenvolvimento
@@ -93,4 +147,5 @@ Acesse [http://localhost:3000](http://localhost:3000).
 - [ ] Criação de atividade com questões de múltipla escolha
 - [ ] Tela pública do aluno com correção automática
 - [ ] Tela de resultados da professora + exportação CSV
-- [ ] Preparação para deploy (Vercel + Turso)
+- [x] Preparação para deploy (Vercel + Turso) — código pronto; falta você criar
+      a conta/banco no Turso e conectar o repo na Vercel (ver seção "Deploy" acima)
