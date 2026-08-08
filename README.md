@@ -50,12 +50,23 @@ ou sobrescritos — são o histórico de auditoria da coordenação.
    node scripts/hash-password.mjs "sua-senha-aqui"
    ```
 
+   O script já imprime o valor com os `$` escapados (`\$`) — cole exatamente
+   o que ele mostrar. O Next.js expande `$algo` dentro do `.env`, então um
+   hash bcrypt colado sem escapar quebra o login silenciosamente.
+
 4. Gere um valor aleatório para `SESSION_SECRET` no `.env` (usado para assinar o cookie de sessão).
 
 5. Aplique as migrations do banco (cria o arquivo `dev.db`):
 
    ```bash
    npx prisma migrate dev
+   ```
+
+6. Rode o seed para criar as 2 disciplinas iniciais (**edite os nomes em
+   `prisma/seed.ts`** antes de rodar — os que estão lá são só placeholders):
+
+   ```bash
+   npm run db:seed
    ```
 
 ## Rodando em desenvolvimento
@@ -71,13 +82,14 @@ Acesse [http://localhost:3000](http://localhost:3000).
 - `npm run dev` — servidor de desenvolvimento
 - `npm run build` — build de produção
 - `npm run lint` — lint
+- `npm run db:seed` — cria as disciplinas iniciais (edite `prisma/seed.ts` primeiro)
 - `npx prisma studio` — interface visual para inspecionar o banco
 - `npx prisma migrate dev --name <descrição>` — criar uma nova migration após alterar o schema
 
 ## Status
 
 - [x] Estrutura inicial do projeto (Next.js + Prisma + SQLite + modelos de dados)
-- [ ] Login da professora e listagem de atividades
+- [x] Login da professora e listagem de atividades
 - [ ] Criação de atividade com questões de múltipla escolha
 - [ ] Tela pública do aluno com correção automática
 - [ ] Tela de resultados da professora + exportação CSV

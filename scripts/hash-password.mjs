@@ -12,4 +12,12 @@ if (!senha) {
 }
 
 const hash = bcrypt.hashSync(senha, 10);
-console.log(hash);
+
+// O Next.js expande variáveis com "$" dentro do .env (ex: $VARIAVEL), o que
+// corrompe hashes bcrypt se colados sem escapar. Por isso já devolvemos aqui
+// o valor pronto para colar em PROFESSORA_PASSWORD_HASH no .env.
+const hashEscapado = hash.replaceAll("$", "\\$");
+
+console.log("Hash gerado:", hash);
+console.log("\nCole isto no .env (já escapado para o Next.js):");
+console.log(`PROFESSORA_PASSWORD_HASH="${hashEscapado}"`);
