@@ -11,7 +11,7 @@ documento fornecido no início do projeto.
 ## Stack
 
 - **Next.js 16** (App Router) — frontend + backend (API/Server Actions) no mesmo projeto
-- **Prisma 7** + **SQLite** — arquivo local (`@prisma/adapter-better-sqlite3`) em dev, [Turso](https://turso.tech) (`@prisma/adapter-libsql`) em produção — ver [`src/lib/db-adapter.ts`](./src/lib/db-adapter.ts)
+- **Prisma 7** + **SQLite** via `@prisma/adapter-libsql` — arquivo local (`dev.db`) em dev, [Turso](https://turso.tech) em produção — ver [`src/lib/db-adapter.ts`](./src/lib/db-adapter.ts). Sem compilação nativa: os binários já vêm pré-compilados para Windows/Mac/Linux.
 - **bcryptjs** — hash da senha da professora (nunca fica em texto puro)
 - **Tailwind CSS** — estilização
 

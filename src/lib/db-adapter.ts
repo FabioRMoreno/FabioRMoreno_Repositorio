@@ -1,11 +1,15 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 /**
- * Escolhe o driver do banco conforme o ambiente:
- * - Se TURSO_DATABASE_URL estiver definido, usa Turso (SQLite hospedado,
- *   necessário em produção na Vercel — o filesystem lá é efêmero).
- * - Caso contrário, usa SQLite local em arquivo (dev.db), para desenvolvimento.
+ * Escolhe a conexão do banco conforme o ambiente:
+ * - Se TURSO_DATABASE_URL estiver definido, conecta no Turso (SQLite
+ *   hospedado, necessário em produção na Vercel — o filesystem lá é efêmero).
+ * - Caso contrário, usa um arquivo SQLite local (dev.db).
+ *
+ * Os dois casos usam o mesmo driver (@prisma/adapter-libsql / @libsql/client)
+ * — ele já vem com binários pré-compilados para Windows/Mac/Linux, então
+ * não exige Python nem toolchain de C++ instalado na máquina (diferente do
+ * better-sqlite3, que exigia compilar na hora do `npm install`).
  */
 export function createDbAdapter() {
   const tursoUrl = process.env.TURSO_DATABASE_URL;
@@ -17,7 +21,7 @@ export function createDbAdapter() {
     });
   }
 
-  return new PrismaBetterSqlite3({
+  return new PrismaLibSql({
     url: process.env.DATABASE_URL ?? "file:./dev.db",
   });
 }
