@@ -30,21 +30,40 @@ Definido em [`prisma/schema.prisma`](./prisma/schema.prisma):
 **Importante:** registros de `Resposta` e `Envio` nunca devem ser apagados
 ou sobrescritos — são o histórico de auditoria da coordenação.
 
-## Configuração
+## Configuração rápida (primeira vez)
 
-1. Instale as dependências:
+```bash
+npm install
+npm run setup
+npm run dev
+```
 
-   ```bash
-   npm install
-   ```
+O `npm run setup` cria o `.env` (com `SESSION_SECRET` aleatório e uma senha
+padrão para a professora), aplica as migrations e roda o seed das 2
+disciplinas iniciais — tudo de uma vez.
 
-2. Copie o arquivo de exemplo de variáveis de ambiente:
+Acesse [http://localhost:3000](http://localhost:3000) e entre com a senha
+**`professora123`** (impressa no terminal quando o setup roda — troque
+depois, ver abaixo).
 
-   ```bash
-   cp .env.example .env
-   ```
+> As disciplinas criadas pelo seed são placeholders ("Disciplina 1
+> (edite em prisma/seed.ts)"). Edite os nomes reais em `prisma/seed.ts` e
+> rode `npm run db:seed` de novo quando quiser corrigi-los.
 
-3. Gere o hash da senha da professora e cole em `PROFESSORA_PASSWORD_HASH` no `.env`:
+### Trocar a senha da professora
+
+```bash
+node scripts/hash-password.mjs "sua-nova-senha"
+```
+
+O script já imprime uma linha pronta — substitua `PROFESSORA_PASSWORD_HASH`
+no `.env` por ela e reinicie `npm run dev`.
+
+<details>
+<summary>Configuração manual (se preferir não usar <code>npm run setup</code>)</summary>
+
+1. `cp .env.example .env`
+2. Gere o hash da senha da professora e cole em `PROFESSORA_PASSWORD_HASH` no `.env`:
 
    ```bash
    node scripts/hash-password.mjs "sua-senha-aqui"
@@ -54,28 +73,11 @@ ou sobrescritos — são o histórico de auditoria da coordenação.
    o que ele mostrar. O Next.js expande `$algo` dentro do `.env`, então um
    hash bcrypt colado sem escapar quebra o login silenciosamente.
 
-4. Gere um valor aleatório para `SESSION_SECRET` no `.env` (usado para assinar o cookie de sessão).
+3. Gere um valor aleatório para `SESSION_SECRET` no `.env`.
+4. `npx prisma migrate dev`
+5. `npm run db:seed` (edite os nomes das disciplinas em `prisma/seed.ts` antes)
 
-5. Aplique as migrations do banco (cria o arquivo `dev.db`):
-
-   ```bash
-   npx prisma migrate dev
-   ```
-
-6. Rode o seed para criar as 2 disciplinas iniciais (**edite os nomes em
-   `prisma/seed.ts`** antes de rodar — os que estão lá são só placeholders):
-
-   ```bash
-   npm run db:seed
-   ```
-
-## Rodando em desenvolvimento
-
-```bash
-npm run dev
-```
-
-Acesse [http://localhost:3000](http://localhost:3000).
+</details>
 
 ## Deploy (Vercel + Turso)
 
@@ -133,6 +135,7 @@ npm run db:seed
 
 ## Scripts úteis
 
+- `npm run setup` — configura o `.env`, aplica migrations e roda o seed (primeira vez)
 - `npm run dev` — servidor de desenvolvimento
 - `npm run build` — build de produção
 - `npm run lint` — lint
