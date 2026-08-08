@@ -1,0 +1,17 @@
+{
+  "name": "AVA - Sistema de Questionários",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install && npm run setup",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "AVA - Sistema de Questionários",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["Prisma.prisma"]
+    }
+  }
+}

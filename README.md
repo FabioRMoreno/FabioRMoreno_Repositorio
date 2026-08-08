@@ -30,7 +30,32 @@ Definido em [`prisma/schema.prisma`](./prisma/schema.prisma):
 **Importante:** registros de `Resposta` e `Envio` nunca devem ser apagados
 ou sobrescritos — são o histórico de auditoria da coordenação.
 
-## Configuração rápida (primeira vez)
+## Testar sem instalar nada (GitHub Codespaces)
+
+Se não quiser lidar com instalação do Node/npm na sua máquina, dá pra rodar
+o projeto inteiro no navegador, na nuvem do GitHub:
+
+1. No GitHub, abra o repositório na branch `claude/sistema-ava-uslfma`.
+2. Clique no botão verde **Code** → aba **Codespaces** → **Create codespace
+   on claude/sistema-ava-uslfma**.
+3. Espere o ambiente montar (alguns minutos na primeira vez — ele já roda
+   `npm install` e `npm run setup` sozinho).
+4. No terminal que abre na parte de baixo da tela, digite:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Vai aparecer um aviso "Your application running on port 3000 is
+   available" — clique em **Open in Browser** (ou abra a aba **Ports** e
+   clique no ícone do globo ao lado da porta 3000).
+6. Entre com a senha **`professora123`** (definida automaticamente pelo
+   `npm run setup`, ver seção abaixo).
+
+Isso roda 100% na nuvem do GitHub — não usa nada do seu computador, e não
+tem o problema de compilar módulos nativos que dá no Windows.
+
+## Configuração rápida (na sua máquina)
 
 ```bash
 npm install
