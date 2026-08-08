@@ -1,0 +1,108 @@
+// Schema do Sistema de Questionários (AVA)
+// Ver instruções do projeto para o modelo de dados original.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Disciplina cadastrada (v1: 2 disciplinas fixas, sem multi-tenant)
+model Disciplina {
+  id         String      @id @default(cuid())
+  nome       String
+  atividades Atividade[]
+
+  @@map("disciplinas")
+}
+
+/// Aluno da turma (v1: 1 turma só, até 15 alunos)
+model Aluno {
+  id        String     @id @default(cuid())
+  nome      String
+  turma     String
+  respostas Resposta[]
+  envios    Envio[]
+
+  @@map("alunos")
+}
+
+/// Atividade = conjunto de questões de múltipla escolha
+model Atividade {
+  id           String     @id @default(cuid())
+  titulo       String
+  disciplinaId String
+  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id])
+  dataCriacao  DateTime   @default(now())
+  prazo        DateTime?
+  ativa        Boolean    @default(true)
+  questoes     Questao[]
+  respostas    Resposta[]
+  envios       Envio[]
+
+  @@map("atividades")
+}
+
+/// Questão de múltipla escolha dentro de uma atividade
+model Questao {
+  id           String        @id @default(cuid())
+  atividadeId  String
+  atividade    Atividade     @relation(fields: [atividadeId], references: [id])
+  enunciado    String
+  ordem        Int
+  alternativas Alternativa[]
+  respostas    Resposta[]
+
+  @@map("questoes")
+}
+
+/// Alternativa de uma questão (uma delas é a correta)
+model Alternativa {
+  id        String     @id @default(cuid())
+  questaoId String
+  questao   Questao    @relation(fields: [questaoId], references: [id])
+  texto     String
+  correta   Boolean    @default(false)
+  respostas Resposta[]
+
+  @@map("alternativas")
+}
+
+/// Resposta individual do aluno a uma questão.
+/// IMPORTANTE: nunca deletar/sobrescrever — é registro de auditoria para a coordenação.
+model Resposta {
+  id                      String      @id @default(cuid())
+  atividadeId             String
+  atividade               Atividade   @relation(fields: [atividadeId], references: [id])
+  alunoId                 String
+  aluno                   Aluno       @relation(fields: [alunoId], references: [id])
+  questaoId               String
+  questao                 Questao     @relation(fields: [questaoId], references: [id])
+  alternativaEscolhidaId  String
+  alternativaEscolhida    Alternativa @relation(fields: [alternativaEscolhidaId], references: [id])
+  dataEnvio               DateTime    @default(now())
+
+  // 1 resposta por questão, por aluno, por atividade
+  @@unique([atividadeId, alunoId, questaoId])
+  @@map("respostas")
+}
+
+/// Consolidação do envio de uma atividade por um aluno (nota final).
+/// IMPORTANTE: nunca deletar — histórico permanente para auditoria.
+model Envio {
+  id          String    @id @default(cuid())
+  atividadeId String
+  atividade   Atividade @relation(fields: [atividadeId], references: [id])
+  alunoId     String
+  aluno       Aluno     @relation(fields: [alunoId], references: [id])
+  notaFinal   Float
+  dataEnvio   DateTime  @default(now())
+  finalizado  Boolean   @default(true)
+
+  // 1 envio por aluno por atividade — bloqueia reenvio
+  @@unique([atividadeId, alunoId])
+  @@map("envios")
+}
