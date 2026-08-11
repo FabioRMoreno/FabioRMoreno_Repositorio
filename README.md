@@ -20,7 +20,7 @@ documento fornecido no início do projeto.
 Definido em [`prisma/schema.prisma`](./prisma/schema.prisma):
 
 - `Disciplina` — id, nome
-- `Aluno` — id, nome, turma
+- `Aluno` — id, nome, turma, senhaHash (PIN individual, gerado por `npm run aluno:novo`)
 - `Atividade` — id, título, disciplina, data de criação, prazo (opcional), ativa
 - `Questao` — id, atividade, enunciado, ordem
 - `Alternativa` — id, questão, texto, é correta
@@ -165,6 +165,7 @@ npm run db:seed
 - `npm run build` — build de produção
 - `npm run lint` — lint
 - `npm run db:seed` — cria as disciplinas iniciais (edite `prisma/seed.ts` primeiro)
+- `npm run aluno:novo -- "Turma" "Nome 1" "Nome 2" ...` — cadastra alunos e gera a senha (PIN) de cada um
 - `npx prisma studio` — interface visual para inspecionar o banco
 - `npx prisma migrate dev --name <descrição>` — criar uma nova migration após alterar o schema
 
@@ -172,8 +173,9 @@ npm run db:seed
 
 - [x] Estrutura inicial do projeto (Next.js + Prisma + SQLite + modelos de dados)
 - [x] Login da professora e listagem de atividades
+- [x] Alunos com senha individual (PIN) — modelo de dados + `npm run aluno:novo` (falta a tela de login do aluno)
 - [ ] Criação de atividade com questões de múltipla escolha
-- [ ] Tela pública do aluno com correção automática
+- [ ] Tela pública do aluno (login por PIN) com correção automática
 - [ ] Tela de resultados da professora + exportação CSV
 - [x] Preparação para deploy (Vercel + Turso) — código pronto; falta você criar
       a conta/banco no Turso e conectar o repo na Vercel (ver seção "Deploy" acima)

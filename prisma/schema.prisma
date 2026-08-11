@@ -19,11 +19,14 @@ model Disciplina {
   @@map("disciplinas")
 }
 
-/// Aluno da turma (v1: 1 turma só, até 15 alunos)
+/// Aluno da turma (v1: 1 turma só, até 15 alunos).
+/// Acesso por senha individual (PIN), gerada em scripts/criar-aluno.ts.
+/// senhaHash nunca fica em texto puro.
 model Aluno {
   id        String     @id @default(cuid())
   nome      String
   turma     String
+  senhaHash String
   respostas Resposta[]
   envios    Envio[]
 
